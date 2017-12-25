@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>智能推荐系统</title>
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="../portrait/css/index.css" rel="stylesheet">
+    <script src="../jquery/jquery-1.11.1.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>
+    <script src="../recom/js/index.js"></script>
+</head>
+<style type="text/css">
+    .loading {
+        left: 43%;
+        z-index: 9999;
+    }
+
+    .table > tbody > tr > td,
+    .table > tbody > tr > th,
+    .table > tfoot > tr > td,
+    .table > tfoot > tr > th,
+    .table > thead > tr > td,
+    .table > thead > tr > th {
+        padding: 1px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .dropdown-menu {
+        max-height: 350px;
+        overflow-y: auto;
+    }
+
+    #userList, #doctorList, #timeList {
+        overflow-y: auto;
+    }
+
+    #doctorList > table > tbody > tr {
+        cursor: pointer;
+    }
+
+</style>
+<script>
+    $(document).ready(function () {
+        internal.init();
+    });
+</script>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">&nbsp;</div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <input type="text" class="form-control" aria-label="请选择用户作为登录用户" readonly id="userName">
+                        <input type="hidden" id="userId"/>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">用户登录 <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a href="#" id="clearUser">注销</a></li>
+                                <!--<li><a href="#">加载更多...</a></li>-->
+                                <li role="separator" class="divider" id="userBox"></li>
+                            </ul>
+                        </div><!-- /btn-group -->
+                    </div><!-- /input-group -->
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">&nbsp;</div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            用户历史预约记录列表
+                        </div>
+                        <div class="panel-body" id="userList">
+                            <!-- Table -->
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th style='width: 35px;'>序号</th>
+                                    <th>医院</th>
+                                    <th>科室</th>
+                                    <th style='min-width: 45px;'>医生</th>
+                                    <th style='min-width: 150px;'>时间</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" aria-label="..." readonly id="orgName">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">医院 <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a href="#" id="clearOrg">清空</a></li>
+                                <li role="separator" class="divider" id="orgBox"></li>
+                            </ul>
+                        </div><!-- /btn-group -->
+                    </div><!-- /input-group -->
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" aria-label="..." readonly id="deptName">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">科室 <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a href="#" id="clearDept">清空</a></li>
+                                <li role="separator" class="divider" id="deptBox"></li>
+                            </ul>
+                        </div><!-- /btn-group -->
+                    </div><!-- /input-group -->
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" aria-label="..." readonly id="doctorName">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">医生 <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a href="#" id="clearDoctor">清空</a></li>
+                                <li role="separator" class="divider" id="doctorBox"></li>
+                            </ul>
+                        </div><!-- /btn-group -->
+                    </div><!-- /input-group -->
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12" id="process">&nbsp;</div>
+            </div>
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="panel panel-default">
+                        <!-- Default panel contents -->
+                        <div class="panel-heading">推荐医生列表</div>
+                        <!-- List group -->
+                        <ul class="list-group" id="doctorList">
+                            <!-- Table -->
+                            <table class="table">
+                                <tbody></tbody>
+                            </table>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="panel panel-default">
+                        <!-- Default panel contents -->
+                        <div class="panel-heading">号源时间段</div>
+                        <!-- List group -->
+                        <ul class="list-group" id="timeList"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="loading"></div>
+</div>
+
+</body>
+</html>

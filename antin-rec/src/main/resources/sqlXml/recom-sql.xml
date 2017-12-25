@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls>
+    <!--查询医生预约记录最多语句-->
+    <sql id="doctorSortSql">
+        select * from (select rownum row_num, t1.* from rec_pre_doctor_count t1) where row_num>? and row_num &lt;=?
+    </sql>
+    <!--加载用户历史预约记录-->
+    <sql id="queryReservationHistoryById">
+        select * from rec_reservation_history where citizen_id = ?
+    </sql>
+    <!--根据用户id,机构，科室，医生查询号源-->
+    <sql id="queryNumerByCondition">
+        select a.org_id,
+        a.dept_code,
+        a.doctor_code,
+        a.res_date,
+        b.start_time,
+        b.end_time
+        from urp_schedule a, urp_number b
+        where a.org_id = b.org_id
+        and a.schedule_id = b.schedule_id
+        and a.limit > a.used
+        and res_date is not null
+        and start_time is not null
+        and end_time is not null
+        and b.start_time >= sysdate
+        and a.org_id = ?
+        and a.dept_code = ?
+        and a.doctor_code = ?
+        order by res_date, start_time, end_time
+    </sql>
+
+    <!--加载号源-->
+    <sql id="getReservationNumber">
+        select t2.code,
+        t1.org_id,
+        t1.dept_code,
+        t1.doctor_code,
+        t1.start_time,
+        t1.end_time
+        from (select a.org_id,
+        a.dept_code,
+        a.doctor_code,
+        a.res_date,
+        b.start_time,
+        b.end_time
+        from urp_schedule a, urp_number b
+        where a.schedule_id = b.schedule_id
+        and b.used = 0
+        and res_date is not null
+        and start_time is not null
+        and end_time is not null
+        order by res_date, start_time, end_time) t1
+        left join rec_urp_org t2
+        on t1.org_id = t2.org_id
+        where t2.org_id = ?
+        and t1.dept_code = ?
+        and t1.doctor_code = ?
+    </sql>
+    <!--加载没有号源的医生-->
+    <sql id="queryDoctorOut">
+        select distinct org_id, dept_code, code as doctor_code
+        from (select t1.org_id, t1.dept_code, t1.code
+        from rec_urp_doctor t1
+        left join rec_urp_schedule t2
+        on t1.org_id = t2.org_id
+        and t1.dept_code = t2.dept_code
+        and t1.code = t2.doctor_code
+        where used is null
+        or used >= limit)
+    </sql>
+    <!--号源时间段-->
+    <sql id="sourceNumSql">
+        select a.org_id,
+        a.dept_code,
+        a.doctor_code,
+        a.res_date,
+        b.start_time,
+        b.end_time
+        from urp_schedule a, urp_number b
+        where a.org_id = b.org_id
+        and a.schedule_id = b.schedule_id
+        and a.limit > a.used
+        and res_date is not null
+        and start_time is not null
+        and end_time is not null
+        and start_time > to_date('2017-09-11', 'yyyy-mm-dd')-7
+        and start_time &lt;= to_date('2017-09-11', 'yyyy-mm-dd')
+        order by a.res_date, b.start_time, b.end_time
+    </sql>
+    <!--获取预约记录最多的医生-->
+    <sql id="maxRecordDoctor">
+        select *
+        from (select rownum as row_num, m1.*
+        from (select org_id,
+        org_id_source,
+        dept_code,
+        doctor_code,
+        count(*) counts
+        from rec_reservation_history
+        where res_date &lt;= sysdate
+        and res_date > add_months(sysdate, -2)
+        group by org_id, org_id_source, dept_code, doctor_code
+        order by counts desc) m1)
+        where row_num > ?
+        and row_num &lt;= ?
+    </sql>
+    <!--查询相似-->
+    <sql id="queryCommeDoctors">
+        select * from rec_pre_doctor_doctors
+    </sql>
+    <!--根据坐标范围查(code->org_id,如果要统一回去，批处理是也要转回去)-->
+    <sql id="queryHospitalByLatAndLng">
+        select code as org_id, longitude, latitude
+        from rec_pre_org_location
+        where latitude between ? and ?
+        and longitude between ? and ?
+        and org_id is not null
+    </sql>
+    <!--****************************************************************************-->
+    <!--****************************************************************************-->
+    <!--****************************************************************************-->
+    <!--医生预约次数排序表-->
+    <sql id="医生预约次数排序表">
+        create table REC_PRE_DOCTOR_COUNT as
+        select org_id, dept_code, doctor_code, count(1) as counts
+        from URP_RESERVATION_HISTORY
+        where citizen_id is not null
+        group by org_id, dept_code, doctor_code
+        order by counts desc
+    </sql>
+
+</sqls>

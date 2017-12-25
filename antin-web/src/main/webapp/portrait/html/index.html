@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>居民健康画像#</title>
+    <!-- Bootstrap core CSS -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="portrait/css/index.css" rel="stylesheet">
+    <script src="jquery/jquery-1.11.1.min.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="portrait/js/index.js"></script>
+</head>
+<script>
+    $(document).ready(function () {
+        internal.init();
+    });
+</script>
+<body>
+<div class="container-fluid theme-showcase" role="main">
+    <div class="row" id="searchBox">
+        <div class="col-sm-12">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="输入用户姓名查询..." id="inputText">
+                <input type="text" id="xmanId" hidden>
+                <input type="text" id="sex" hidden>
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false"> 例 子 <span class="caret"></span></button>
+                    <ul class="dropdown-menu dropdown-menu-right" id="dropdownLi"></ul>
+                </div><!-- /btn-group -->
+                <span class="input-group-btn">
+                     <button class="btn btn-default" type="button" id="persionSearch"> 查 询</button>
+                </span>
+            </div><!-- /input-group -->
+        </div><!-- /.col-lg-6 -->
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="person-box" style=""></div>
+        </div>
+
+        <div class="col-sm-6" style="margin: 20px 0;/*height: 685px;*/overflow-y: auto;" id="contentBox">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">资金来源</h3>
+                </div>
+                <div class="panel-body">
+                    <strong>说明：</strong>根据市民历史的就诊付费类型进行统计，对付费类型进行排列，根据标签顺序进行标记。
+                    <br/>
+                    <strong>标签：</strong>自费病人、医保病人、公务员报销。
+                    <br/>
+                    <strong>数据来源：</strong>门诊费用表-付费情况-历次就诊中占比大于50%的标签。
+                </div>
+            </div>
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h3 class="panel-title">慢性病类型</h3>
+                </div>
+                <div class="panel-body">
+                    <strong>说明：</strong>根据市民的历史诊断信息，由于慢性病是需要长期的往返医院进行复查，并且持续性较久的疾病类型，多个慢性病存在并发的可能性，通过对ICD10中慢性病的种类进行比对，对患病市民进行标记。
+                    <br/>
+                    <strong>标签：</strong>高血压、糖尿病、癫痫、痛风、心血管疾病等。
+                </div>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">用药依从性分类</h3>
+                </div>
+                <div class="panel-body">
+                    <strong>说明：</strong>对于慢性疾病或者伴随性疾病可能需要长期不间断的服用某种药品，此处对长期用药的患者进行识别，并标记信息。
+                    <br/>
+                    <strong>标签：</strong>长期用药、无依从。
+                    <br/>
+                    <strong>数据来源：</strong>门诊用药记录。
+                </div>
+            </div>
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h3 class="panel-title">用药习惯分类</h3>
+                </div>
+                <div class="panel-body">
+                    <strong>说明：</strong>根据患者的历史就诊信息，对药品分类进行统计，分析出患者的用药习惯。
+                    <br/>
+                    <strong>标签：</strong>西药、中药等。
+                    <br/>
+                    <strong>数据来源：</strong>门诊用药记录-用药类别。
+                </div>
+            </div>
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <h3 class="panel-title">就医习惯</h3>
+                </div>
+                <div class="panel-body">
+                    <strong>说明：</strong>通过对市民的历史就诊记录进行统计，分析市民经常前往就诊的医疗机构，通过该项标签可以识别出患者对于三级医院或基层医疗卫生机构的依赖性。
+                    <br/>
+                    <strong>标签：</strong>厦门大学附属第一医院、嘉莲社区卫生服务中心等。
+                    <br>
+                    <strong>数据来源：</strong>门诊就诊基本信息。
+                </div>
+            </div>
+            <!--                       -->
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">长期用药（慢性病）</h3>
+                </div>
+                <div class="panel-body">
+                    <strong>说明：</strong>对于慢性疾病或者伴随性疾病可能需要长期不间断的服用某种药品，例如糖尿病患者根据严重程度不同可能需要按时注射胰岛素或服用适量的糖尿病药物。
+                    <br/>
+                    <strong>标签：</strong>二型胰岛素（注射）、西格列汀二甲双胍片、阿卡波糖片、亚莫利格列美脲片等。
+                </div>
+            </div>
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h3 class="panel-title">传染病分类</h3>
+                </div>
+                <div class="panel-body">
+                    <strong>说明：</strong>根据历史统计的传染病信息进行标记。
+                    <br/>
+                    <strong>标签：</strong>肺结核、HIV等。
+                    <br/>
+                    <strong>备注：</strong>传染病信息需注意患者隐私。
+                </div>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">遗传病分类</h3>
+                </div>
+                <div class="panel-body">
+                    <strong>说明：</strong>根据历史统计的遗传病信息进行标记。
+                    <br/>
+                    <strong>标签：</strong>糖尿病、癫痫等。
+                </div>
+            </div>
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h3 class="panel-title">生物学分类</h3>
+                </div>
+                <div class="panel-body">
+                    <strong>说明：</strong>基于人口学属性和体征信息进行分类标记。
+                    <br/>
+                    <strong>标签：</strong>
+                    <br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;年龄（新生儿、婴幼儿、学龄前儿童、儿童、青少年、中年、老年等）、
+                    <br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;体重（消瘦、偏瘦、适中、偏胖、肥胖），
+                    <br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;婚姻（已婚、未婚），
+                    <br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;是否有小孩（宝妈、宝爸）、
+                    <br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;小孩个数（1、2、3个）、
+                    <br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;职业（程序员等），
+                    <br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;性别（男性、女性），
+                    <br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;人种（黄、白、黑），
+                    <br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;民族（满、汉）、
+                    <br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;籍贯（黑龙江、福建），
+                    <br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;血型（A型血、B型血等）。
+                    <br/>
+                    <strong>数据来源：</strong>个人基本信息、体检。
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="loading"></div>
+</body>
+</html>

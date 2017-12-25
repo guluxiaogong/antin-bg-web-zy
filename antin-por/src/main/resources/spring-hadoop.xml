@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:hdp="http://www.springframework.org/schema/hadoop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/hadoop
+    http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
+
+    <hdp:configuration resources="classpath:/hbase-site.xml"/>
+
+    <!-- 配置zookeeper地址和端口 -->
+    <hdp:hbase-configuration configuration-ref="hadoopConfiguration" zk-quorum="172.16.34.11,172.16.34.12,172.16.34.13"
+                             zk-port="2181">
+        hbase.rootdir=hdfs://antin-cluster/apps/hbase
+        hbase.cluster.distributed=true
+        zookeeper.session.timeout=30000
+        hbase.hregion.majorcompaction=0
+        hbase.regionserver.regionSplitLimit=1
+        dfs.client.socket-timeout=600000
+    </hdp:hbase-configuration>
+    <!--        <hdp:hbase-configuration configuration-ref="hadoopConfiguration" zk-quorum="10.95.18.56,10.95.18.57,10.95.18.58" zk-port="2181">
+                hbase.rootdir=hdfs://hadoop-cluster/apps/hbase
+                hbase.cluster.distributed=true
+                zookeeper.session.timeout=30000
+                hbase.hregion.majorcompaction=0
+                hbase.regionserver.regionSplitLimit=1
+                dfs.client.socket-timeout=600000
+            </hdp:hbase-configuration>-->
+
+    <!-- hadoop hdfs 操作类FileSystem,用来读写HDFS文件 -->
+    <hdp:file-system id="hadoop-cluster" configuration-ref="hadoopConfiguration"/>
+
+    <!-- 配置HbaseTemplate -->
+    <bean id="hbaseTemplate" class="org.springframework.data.hadoop.hbase.HbaseTemplate">
+        <property name="configuration" ref="hbaseConfiguration"/>
+    </bean>
+
+
+    <!--***************************************phoenix**********************************************-->
+    <!--//配置Phoenix数据源-->
+    <bean id="phoenixDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <!--<bean name="phoenixDataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init"
+              destroy-method="close">-->
+        <property name="driverClassName" value="org.apache.phoenix.jdbc.PhoenixDriver"/>
+        <!--<property name="url" value="jdbc:phoenix:master"/>-->
+        <property name="url" value="jdbc:phoenix:antin-001,antin-003,antin-002:2181"/>
+        <property name="initialSize" value="15"/>
+        <property name="maxActive" value="0"/>
+    </bean>
+    <!-- //选择JDBC模板-->
+    <bean id="phoenixJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <constructor-arg ref="phoenixDataSource"/>
+        <qualifier value="phoenixJdbcTemplate"/>
+    </bean>
+
+</beans>
